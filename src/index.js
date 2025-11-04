@@ -7,17 +7,15 @@ import otpRoutes from "./otpRoutes.js";
 
 const app = express();
 
-// ✅ Dynamic CORS: allow local dev, local network, and production
+// ✅ Allow Ionic, Android, and Render access
 const allowedOrigins = [
-  "http://localhost:8100",           // Ionic dev server
-  "http://127.0.0.1:8100",           // Alternative local
-  "capacitor://localhost",           // For Android/iOS builds (Capacitor)
-  "http://192.168.1.6:8100",         // Replace with your LAN IP (same WiFi)
-  "http://192.168.1.6",              // Optional direct IP access
-  "https://your-production-domain.com", // When deployed
+  "http://localhost:8100",
+  "http://127.0.0.1:8100",
+  "capacitor://localhost",
+  "http://192.168.1.6:8100", // Replace with your LAN IP
+  "https://otp-email.onrender.com", // Your Render backend
 ];
 
-// ✅ Use custom CORS middleware for flexibility
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
@@ -29,26 +27,20 @@ app.use((req, res, next) => {
   next();
 });
 
-// ✅ Parse JSON requests
 app.use(bodyParser.json());
 
-// ✅ Log requests for debugging (helps when testing from phone)
+// ✅ Logs for debugging
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} from ${req.headers.origin || "unknown origin"}`);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
 // ✅ Register OTP routes
 app.use("/api", otpRoutes);
 
-// ✅ Handle undefined routes gracefully
-app.use((req, res) => {
-  res.status(404).json({ message: "Route not found" });
-});
+// ✅ Handle 404
+app.use((req, res) => res.status(404).json({ message: "Route not found" }));
 
-// ✅ Start Express server
 app.listen(config.port, "0.0.0.0", () => {
-  console.log(`✅ Server running on: http://localhost:${config.port}`);
-  console.log(`🌐 Accessible via LAN at: http://<your-local-IP>:${config.port}`);
-  console.log(`⚙️  CORS enabled for: ${allowedOrigins.join(", ")}`);
+  console.log(`✅ Server running on port ${config.port}`);
 });
