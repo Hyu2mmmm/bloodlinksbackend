@@ -29,30 +29,24 @@ app.use((req, res, next) => {
 
 app.use(bodyParser.json());
 
-// ✅ Logs for debugging
+// ✅ Log requests for debugging
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
-// ✅ Root route
+
+// ✅ Single root route
 app.get("/", (req, res) => {
   res.send("✅ OTP Email Backend is running successfully on Render!");
 });
 
-
 // ✅ Register OTP routes
 app.use("/api", otpRoutes);
 
-// ✅ Handle 404
-// ✅ Root route
-app.get("/", (req, res) => {
-  res.send("✅ OTP Email Backend is running on Render!");
-});
-
-// ✅ Handle 404 for other paths
+// ✅ Handle unknown routes
 app.use((req, res) => res.status(404).json({ message: "Route not found" }));
 
-
+// ✅ Start server
 app.listen(config.port, "0.0.0.0", () => {
   console.log(`✅ Server running on port ${config.port}`);
 });
