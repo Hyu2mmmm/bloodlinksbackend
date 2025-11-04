@@ -1,47 +1,29 @@
-import nodemailer from "nodemailer";
+// src/mailer.js
+import { Resend } from "resend";
 import { config } from "./config.js";
 
-export const sendOtp = async (email, otp) => {
+// Initialize Resend client
+const resend = new Resend(config.resendApiKey);
+
+export async function sendOtp(email, otp) {
   try {
-    console.log(`📧 Sending OTP to: ${email}`);
-
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587, // TLS port (more reliable on Render)
-      secure: false, // use STARTTLS instead of SSL
-      auth: {
-        user: config.emailUser,
-        pass: config.emailPass,
-      },
-      tls: {
-        rejectUnauthorized: false, // allow Render to connect even with self-signed certs
-      },
-    });
-
-    // Optional: Verify connection
-    await transporter.verify();
-    console.log("✅ Gmail SMTP connection verified successfully!");
-
-    const mailOptions = {
-      from: `"BloodLinks Verification" <${config.emailUser}>`,
+    const info = await resend.emails.send({
+      from: "BloodLinks <onboarding@resend.dev>",
       to: email,
-      subject: "Your OTP Code for BloodLinks",
+      subject: "Your BloodLinks OTP Code",
       html: `
-        <div style="font-family:Arial,sans-serif;padding:20px;">
-          <h2>🔐 Email Verification</h2>
-          <p>Your OTP code is:</p>
-          <h1 style="color:#d32f2f;">${otp}</h1>
-          <p>This code will expire in 5 minutes.</p>
+        <div style="font-family: Arial, sans-serif; padding: 16px;">
+          <h2>🔐 Your OTP Code</h2>
+          <p>Here’s your BloodLinks verification code:</p>
+          <h1 style="color: #e53935; font-size: 36px;">${otp}</h1>
+          <p>This code will expire in <b>5 minutes</b>.</p>
         </div>
       `,
-    };
+    });
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ OTP email sent successfully to ${email}: ${info.response}`);
-
-    return true;
+    console.log(`📧 OTP sent to ${email} | ID: ${info.data?.id || "no id"}`);
   } catch (error) {
     console.error("❌ Mailer error details:", error);
     throw new Error(error.message || "Failed to send OTP email");
   }
-};
+}
