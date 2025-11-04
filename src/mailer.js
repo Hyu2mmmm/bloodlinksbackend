@@ -3,20 +3,22 @@ import { config } from "./config.js";
 
 export const sendOtp = async (email, otp) => {
   try {
-    console.log(`📧 Preparing to send OTP to: ${email}`);
-    console.log("📦 Using email user:", config.emailUser ? "Loaded ✅" : "Missing ❌");
+    console.log(`📧 Sending OTP to: ${email}`);
 
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
-      port: 465,
-      secure: true, // Use SSL for Gmail
+      port: 587, // TLS port (more reliable on Render)
+      secure: false, // use STARTTLS instead of SSL
       auth: {
         user: config.emailUser,
         pass: config.emailPass,
       },
+      tls: {
+        rejectUnauthorized: false, // allow Render to connect even with self-signed certs
+      },
     });
 
-    // Verify transporter connection before sending
+    // Optional: Verify connection
     await transporter.verify();
     console.log("✅ Gmail SMTP connection verified successfully!");
 
@@ -27,7 +29,7 @@ export const sendOtp = async (email, otp) => {
       html: `
         <div style="font-family:Arial,sans-serif;padding:20px;">
           <h2>🔐 Email Verification</h2>
-          <p>Here is your OTP code:</p>
+          <p>Your OTP code is:</p>
           <h1 style="color:#d32f2f;">${otp}</h1>
           <p>This code will expire in 5 minutes.</p>
         </div>
@@ -35,7 +37,7 @@ export const sendOtp = async (email, otp) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ OTP email sent to ${email}: ${info.response}`);
+    console.log(`✅ OTP email sent successfully to ${email}: ${info.response}`);
 
     return true;
   } catch (error) {
