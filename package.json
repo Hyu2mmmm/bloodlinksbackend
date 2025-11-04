@@ -1,5 +1,6 @@
 {
   "name": "otp-email",
+  "type": "module",
   "version": "1.0.0",
   "description": "OTP email sender backend for BloodLinks app",
   "main": "src/index.js",
