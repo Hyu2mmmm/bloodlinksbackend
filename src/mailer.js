@@ -2,12 +2,13 @@
 import { Resend } from "resend";
 import { config } from "./config.js";
 
-// Initialize Resend client
 const resend = new Resend(config.resendApiKey);
 
 export async function sendOtp(email, otp) {
   try {
-    const info = await resend.emails.send({
+    console.log(`📧 Sending OTP to: ${email}`);
+
+    const response = await resend.emails.send({
       from: "BloodLinks <onboarding@resend.dev>",
       to: email,
       subject: "Your BloodLinks OTP Code",
@@ -21,7 +22,7 @@ export async function sendOtp(email, otp) {
       `,
     });
 
-    console.log(`📧 OTP sent to ${email} | ID: ${info.data?.id || "no id"}`);
+    console.log("✅ Resend API response:", response);
   } catch (error) {
     console.error("❌ Mailer error details:", error);
     throw new Error(error.message || "Failed to send OTP email");
