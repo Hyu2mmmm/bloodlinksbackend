@@ -39,7 +39,14 @@ app.use((req, res, next) => {
 app.use("/api", otpRoutes);
 
 // ✅ Handle 404
+// ✅ Root route
+app.get("/", (req, res) => {
+  res.send("✅ OTP Email Backend is running on Render!");
+});
+
+// ✅ Handle 404 for other paths
 app.use((req, res) => res.status(404).json({ message: "Route not found" }));
+
 
 app.listen(config.port, "0.0.0.0", () => {
   console.log(`✅ Server running on port ${config.port}`);
